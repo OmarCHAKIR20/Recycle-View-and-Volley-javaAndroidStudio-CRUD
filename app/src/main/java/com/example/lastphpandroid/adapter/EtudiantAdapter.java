@@ -1,0 +1,207 @@
+package com.example.lastphpandroid.adapter;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.RadioButton;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.example.lastphpandroid.R;
+import com.example.lastphpandroid.beans.Etudiant;
+
+import org.w3c.dom.Text;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+public class EtudiantAdapter extends RecyclerView.Adapter<EtudiantAdapter.ViewHolder> {
+    //create variable
+    private ArrayList<Etudiant>modelArrayList;
+    private Context context;
+    //generate constructor
+
+    String updateUrl = "http://192.168.1.37//projetAndroid/controller/updateEtudiant.php";
+    private static String deleteEtudiant = "http://192.168.1.37//projetAndroid/controller/deleteEtudiant.php";
+
+    public EtudiantAdapter(ArrayList<Etudiant> modelArrayList, Context context) {
+        this.modelArrayList = modelArrayList;
+        this.context = context;
+    }
+
+    @NonNull
+    @Override
+    public EtudiantAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        //layout inflater
+
+        View view= LayoutInflater.from ( context ).inflate (R.layout.etudiant_item,parent,false );
+        final ViewHolder holder = new ViewHolder(view);
+
+
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                View popup = LayoutInflater.from(context).inflate(R.layout.edit_etudiant_layout , null , false);
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setView(popup);
+
+                final TextView idEdit = popup.findViewById(R.id.idEdit);
+                final TextView edit_name = popup.findViewById(R.id.edit_nom);
+                final TextView edit_prenom = popup.findViewById(R.id.edit_prenom);
+                final Button editButton = popup.findViewById(R.id.something);
+                final Button deleteButton = popup.findViewById(R.id.delete);
+
+                Spinner ville = (Spinner) popup.findViewById(R.id.Edit_ville);
+                 RadioButton m  = (RadioButton) popup.findViewById(R.id.m);
+
+
+                edit_name.setText(((TextView)v.findViewById(R.id.lname)).getText().toString());
+                edit_prenom.setText(((TextView)v.findViewById(R.id.fname)).getText().toString());
+
+
+
+                idEdit.setText(((TextView)v.findViewById(R.id.idtxt)).getText().toString());
+
+                // Set Title and Message:
+                builder.setTitle("Title").setMessage("This is a message");
+
+                builder.setCancelable(true);
+                deleteButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        StringRequest stringRequest = new StringRequest(Request.Method.POST, deleteEtudiant , new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                               // Toast.makeText(context, "nice  "+ response, Toast.LENGTH_SHORT).show();
+                            }
+                        }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                               // Toast.makeText(context, "error "+error, Toast.LENGTH_SHORT).show();
+                            }
+                        }){
+                            @Nullable
+                            @Override
+                            protected HashMap<String, String> getParams() throws AuthFailureError {
+
+                                HashMap<String , String> params = new HashMap<>();
+                                params.put("id" ,  idEdit.getText().toString());
+
+                                return  params;
+                            }
+                        };
+                        RequestQueue queue = Volley.newRequestQueue(context);
+                        queue.add(stringRequest);
+                    }
+                });
+
+                editButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        StringRequest stringRequest = new StringRequest(Request.Method.POST, updateUrl, new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                               // Toast.makeText(context, "nice  "+response, Toast.LENGTH_SHORT).show();
+                            }
+                        }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                //Toast.makeText(context, "error "+error, Toast.LENGTH_SHORT).show();
+                            }
+                        }){
+                            @Nullable
+                            @Override
+                            protected HashMap<String, String> getParams() throws AuthFailureError {
+                                String sexe = "";
+                                if (m.isChecked()) {
+                                    sexe = "homme";
+                                } else{
+                                    sexe = "femme";
+                                }
+                                        HashMap<String , String> params = new HashMap<>();
+                                             params.put("id" ,  idEdit.getText().toString());
+
+                                            params.put("nom" ,  edit_name.getText().toString());
+                                            params.put("prenom" ,  edit_prenom.getText().toString());
+                                              params.put("ville" , ville.getSelectedItem().toString() );
+                                                 params.put("sexe" , sexe );
+                                return  params;
+                            }
+                        };
+                        RequestQueue queue = Volley.newRequestQueue(context);
+                        queue.add(stringRequest);
+
+
+
+                    }
+                });
+
+
+
+
+                // Create AlertDialog:
+                AlertDialog alert = builder.create();
+                alert.show();
+
+
+            }
+        });
+
+
+        return holder;
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        //get position
+        Etudiant model=modelArrayList.get ( position );
+
+        holder.id.setText (model.getId ()+ "" );
+        holder.fname.setText ( model.getNom () );
+        holder.lname.setText ( model.getPrenom () );
+        holder.residence.setText ( model.getVille ()+"\n" );
+        holder.sexe.setText(model.getSexe());
+
+
+    }
+
+    @Override
+    public int getItemCount() {
+        return modelArrayList.size ();
+    }
+
+
+
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        TextView id,fname,lname , residence , sexe;
+        Button delete;
+
+        public ViewHolder(@NonNull View itemView) {
+            super ( itemView );
+            id=itemView.findViewById ( R.id.idtxt );
+            fname=itemView.findViewById ( R.id.fname );
+            lname=itemView.findViewById ( R.id.lname );
+           residence = itemView.findViewById(R.id.residence);
+           sexe = itemView.findViewById(R.id.sexe);
+           delete = itemView.findViewById(R.id.delete);
+
+        }
+    }
+}
