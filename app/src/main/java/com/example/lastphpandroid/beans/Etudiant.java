@@ -7,9 +7,10 @@ public class Etudiant {
     private String prenom;
     private String ville;
     private String sexe;
+    private String image;
     public Etudiant() {
     }
-    public Etudiant(int id, String nom, String prenom, String ville, String sexe) {
+    public Etudiant(int id, String nom, String prenom, String ville, String sexe , String  image) {
         this.id = id;
         this.nom = nom;
         this.prenom = prenom;
@@ -48,6 +49,14 @@ public class Etudiant {
     public void setSexe(String sexe) {
         this.sexe = sexe;
     }
+    public void setImage(String image) {
+        this.image = image;
+    }
+    public String getImage() {
+        return image;
+    }
+
+
 
     @Override
     public String toString() {

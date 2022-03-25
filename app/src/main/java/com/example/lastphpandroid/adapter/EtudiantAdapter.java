@@ -1,10 +1,14 @@
 package com.example.lastphpandroid.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -23,11 +27,13 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
 import com.example.lastphpandroid.R;
 import com.example.lastphpandroid.beans.Etudiant;
 
 import org.w3c.dom.Text;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -37,12 +43,19 @@ public class EtudiantAdapter extends RecyclerView.Adapter<EtudiantAdapter.ViewHo
     private Context context;
     //generate constructor
 
-    String updateUrl = "http://192.168.1.37//projetAndroid/controller/updateEtudiant.php";
-    private static String deleteEtudiant = "http://192.168.1.37//projetAndroid/controller/deleteEtudiant.php";
+    String updateUrl = "http://192.168.1.36//projetAndroid/controller/updateEtudiant.php";
+    private static String deleteEtudiant = "http://192.168.1.36//projetAndroid/controller/deleteEtudiant.php";
 
     public EtudiantAdapter(ArrayList<Etudiant> modelArrayList, Context context) {
         this.modelArrayList = modelArrayList;
         this.context = context;
+    }
+    public String BitMapToString(Bitmap bitmap){
+        ByteArrayOutputStream baos=new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG,100, baos);
+        byte [] b=baos.toByteArray();
+        String temp= Base64.encodeToString(b, Base64.DEFAULT);
+        return temp;
     }
 
     @NonNull
@@ -65,24 +78,39 @@ public class EtudiantAdapter extends RecyclerView.Adapter<EtudiantAdapter.ViewHo
                 final TextView idEdit = popup.findViewById(R.id.idEdit);
                 final TextView edit_name = popup.findViewById(R.id.edit_nom);
                 final TextView edit_prenom = popup.findViewById(R.id.edit_prenom);
+                final ImageView edit_image = popup.findViewById(R.id.edit_image);
+
                 final Button editButton = popup.findViewById(R.id.something);
                 final Button deleteButton = popup.findViewById(R.id.delete);
+                final Button uploadImage = popup.findViewById(R.id.upload);
 
                 Spinner ville = (Spinner) popup.findViewById(R.id.Edit_ville);
                  RadioButton m  = (RadioButton) popup.findViewById(R.id.m);
-
-
                 edit_name.setText(((TextView)v.findViewById(R.id.lname)).getText().toString());
                 edit_prenom.setText(((TextView)v.findViewById(R.id.fname)).getText().toString());
+
+                Bitmap bitmap = ((BitmapDrawable)((ImageView)view
+                        .findViewById(R.id.image)).getDrawable()).getBitmap();
+
+                Glide.with(context)
+                        .load(BitMapToString(bitmap))
+                        .into(edit_image);
+                edit_image.setImageResource(R.drawable.ic_launcher_foreground);
 
 
 
                 idEdit.setText(((TextView)v.findViewById(R.id.idtxt)).getText().toString());
 
                 // Set Title and Message:
-                builder.setTitle("Title").setMessage("This is a message");
+                builder.setTitle("Modification").setMessage("");
 
                 builder.setCancelable(true);
+                uploadImage.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                    }
+                });
                 deleteButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -172,12 +200,15 @@ public class EtudiantAdapter extends RecyclerView.Adapter<EtudiantAdapter.ViewHo
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         //get position
         Etudiant model=modelArrayList.get ( position );
-
+        Glide.with(holder.profil.getContext())
+                .load("http://192.168.1.36/projet/images/" + model.getImage())
+                .into(holder.profil);
         holder.id.setText (model.getId ()+ "" );
         holder.fname.setText ( model.getNom () );
         holder.lname.setText ( model.getPrenom () );
         holder.residence.setText ( model.getVille ()+"\n" );
         holder.sexe.setText(model.getSexe());
+
 
 
     }
@@ -190,12 +221,15 @@ public class EtudiantAdapter extends RecyclerView.Adapter<EtudiantAdapter.ViewHo
 
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView id,fname,lname , residence , sexe;
+        TextView id,fname,lname , residence , sexe ;
+        ImageView profil;
         Button delete;
+
 
         public ViewHolder(@NonNull View itemView) {
             super ( itemView );
             id=itemView.findViewById ( R.id.idtxt );
+            profil = itemView.findViewById(R.id.image);
             fname=itemView.findViewById ( R.id.fname );
             lname=itemView.findViewById ( R.id.lname );
            residence = itemView.findViewById(R.id.residence);

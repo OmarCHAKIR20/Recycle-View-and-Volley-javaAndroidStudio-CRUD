@@ -32,7 +32,7 @@ import java.util.List;
 public class ListEtudiant extends AppCompatActivity {
     RecyclerView recyclerView;
     List<Etudiant> etudiants ;
-    private static String base = "http://192.168.1.37//projetAndroid/controller/loadEtudiant.php";
+    private static String base = "http://192.168.1.36//projetAndroid/controller/loadEtudiant.php";
 
     EtudiantAdapter adapter;
     @Override
@@ -109,6 +109,7 @@ public class ListEtudiant extends AppCompatActivity {
                         etudiant.setPrenom(etudiantObject.getString("prenom").toString());
                         etudiant.setVille(etudiantObject.getString("ville").toString());
                         etudiant.setSexe(etudiantObject.getString("sexe").toString());
+                        etudiant.setImage(etudiantObject.getString("upload").toString());
 
                         etudiants.add(etudiant);
                     } catch (JSONException e) {

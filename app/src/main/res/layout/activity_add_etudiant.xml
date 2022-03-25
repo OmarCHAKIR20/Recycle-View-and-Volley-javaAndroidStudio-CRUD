@@ -7,6 +7,29 @@
     android:padding="10dp"
     android:layout_height="match_parent"
   >
+    <ImageView
+        android:id="@+id/img"
+        android:layout_width="300dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="50dp"
+        app:srcCompat="@drawable/ic_launcher_foreground" />
+    <Button
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="Browse Image"
+        android:id="@+id/browse"/>
+
+
+    <Button
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="Upload to Server"
+        android:textColor="#FFF"
+
+        android:layout_marginTop="10dp"
+        android:id="@+id/upload"/>
     <TextView
         android:id="@+id/textView"
 
